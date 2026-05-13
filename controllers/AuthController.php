@@ -29,19 +29,8 @@ class AuthController {
         $database = new Database();
         $db = $database->conectar();
 
-        // CONSULTA  ← columna con ñ entre backticks
-        $sql = "SELECT 
-                    u.id_usuario,
-                    u.`contraseña`,
-                    p.nombre,
-                    p.correo,
-                    r.id_rol,
-                    r.nombre_rol
-                FROM Usuario u
-                INNER JOIN Persona p ON u.id_persona = p.id_persona
-                INNER JOIN Rol r     ON u.id_rol     = r.id_rol
-                WHERE p.correo = :email
-                LIMIT 1";
+        // CONSULTA
+        $sql = "SELECT * FROM usuarios WHERE email = :email LIMIT 1";
 
         $stmt = $db->prepare($sql);
         $stmt->bindParam(":email", $email);
@@ -60,8 +49,8 @@ class AuthController {
             exit;
         }
 
-        // Verificar contraseña  ← usa la clave del array con ñ
-        if (!password_verify($password, $usuario['contraseña'])) {
+        // Verificar contraseña
+        if (!password_verify($password, $usuario['password'])) {
             $_SESSION['alert'] = [
                 'icon'  => 'error',
                 'title' => 'Contraseña incorrecta',
@@ -76,18 +65,17 @@ class AuthController {
 
         // Guardar datos en sesión
         $_SESSION['usuario'] = [
-            'id_usuario' => $usuario['id_usuario'],
-            'nombre'     => $usuario['nombre'],
-            'correo'     => $usuario['correo'],
-            'rol_id'     => $usuario['id_rol'],
-            'rol'        => $usuario['nombre_rol']
+            'id_usuario' => $usuario['id'],
+            'nombres'    => $usuario['nombres'],
+            'apellidos'  => $usuario['apellidos'],
+            'email'      => $usuario['email'],
+            'rol'        => $usuario['rol']
         ];
 
         // Redirección por rol
-        if ($usuario['id_rol'] == 1) {
+        $rol_str = strtolower($usuario['rol']);
+        if ($rol_str === 'administrador') {
             header("Location: ../views/dashboard/admin.php");
-        } else if ($usuario['id_rol'] == 2) {
-            header("Location: ../views/dashboard/index.php");
         } else {
             header("Location: ../views/dashboard/index.php");
         }

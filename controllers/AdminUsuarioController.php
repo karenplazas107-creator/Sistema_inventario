@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/../config/databse.php'; 
+require_once __DIR__ . '/../config/database.php'; 
 require_once __DIR__ . '/../models/usuario.php';
 
 class AdminUsuarioController {
@@ -40,12 +40,13 @@ class AdminUsuarioController {
             exit;
         }
 
-        $id       = $_POST['id_usuario'];
-        $nombre   = $_POST['nombre'];
-        $telefono = $_POST['telefono'];
-        $rol      = $_POST['rol'];
+        $id        = $_POST['id_usuario'];
+        $nombres   = $_POST['nombres'];
+        $apellidos = $_POST['apellidos'];
+        $movil     = $_POST['movil'];
+        $rol       = $_POST['rol'];
 
-        $resultado = $this->usuario->editarCompleto($id, $nombre, $telefono, $rol);
+        $resultado = $this->usuario->editarCompleto($id, $nombres, $apellidos, $movil, $rol);
 
         $_SESSION['alert'] = $resultado === true
             ? ['icon'=>'success','title'=>'Actualizado','text'=>'Usuario actualizado']

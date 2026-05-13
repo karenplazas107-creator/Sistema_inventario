@@ -13,16 +13,17 @@ class UsuarioController {
             exit;
         }
 
-        $nombre             = trim($_POST['nombre']             ?? '');
-        $telefono           = trim($_POST['telefono']           ?? '');
-        $correo             = trim($_POST['correo']             ?? '');
+        $nombres            = trim($_POST['nombres']            ?? '');
+        $apellidos          = trim($_POST['apellidos']          ?? '');
+        $movil              = trim($_POST['movil']              ?? '');
+        $email              = trim($_POST['email']              ?? '');
         $password           = trim($_POST['password']           ?? '');
         $confirmar_password = trim($_POST['confirmar_password'] ?? '');
-        $rol                = trim($_POST['rol']                ?? 1);
         $desde_admin        = isset($_POST['desde_admin']) && $_POST['desde_admin'] == '1';
+        $rol                = $desde_admin ? trim($_POST['rol'] ?? 'Vendedor') : 'Comprador';
 
         // VALIDACIONES
-        if (empty($nombre) || empty($correo) || empty($password) || empty($confirmar_password)) {
+        if (empty($nombres) || empty($apellidos) || empty($email) || empty($password) || empty($confirmar_password)) {
             $_SESSION['alert'] = [
                 'icon'  => 'warning',
                 'title' => 'Campos incompletos',
@@ -35,7 +36,7 @@ class UsuarioController {
             exit;
         }
 
-        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['alert'] = [
                 'icon'  => 'error',
                 'title' => 'Correo inválido',
@@ -78,7 +79,7 @@ class UsuarioController {
         $db = $database->conectar();
         $usuario = new Usuario($db);
 
-        if ($usuario->existeCorreo($correo)) {
+        if ($usuario->existeCorreo($email)) {
             $_SESSION['alert'] = [
                 'icon'  => 'error',
                 'title' => 'Correo existente',
@@ -94,10 +95,11 @@ class UsuarioController {
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
         $datos = [
-            'nombre'     => $nombre,
-            'telefono'   => $telefono,
-            'correo'     => $correo,
-            'contrasena' => $passwordHash,
+            'nombres'    => $nombres,
+            'apellidos'  => $apellidos,
+            'movil'      => $movil,
+            'email'      => $email,
+            'password'   => $passwordHash,
             'rol'        => $rol
         ];
 
