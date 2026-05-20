@@ -40,15 +40,16 @@ class Venta {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function crear($usuario_id, $total, $detalles) {
+    public function crear($usuario_id, $total, $detalles, $metodo_pago = 'Efectivo') {
         try {
             $this->conn->beginTransaction();
 
             // Insertar venta
-            $query = "INSERT INTO " . $this->table_name . " (usuario_id, fecha, total) VALUES (:usuario_id, NOW(), :total)";
+            $query = "INSERT INTO " . $this->table_name . " (usuario_id, fecha, total, metodo_pago) VALUES (:usuario_id, NOW(), :total, :metodo_pago)";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(":usuario_id", $usuario_id);
             $stmt->bindParam(":total", $total);
+            $stmt->bindParam(":metodo_pago", $metodo_pago);
             $stmt->execute();
             
             $venta_id = $this->conn->lastInsertId();
@@ -63,10 +64,16 @@ class Venta {
                 $stmtDetalle->bindParam(":cantidad", $item['cantidad']);
                 $stmtDetalle->bindParam(":precio", $item['precio']);
                 $stmtDetalle->execute();
+
+                // Opcional: Descontar stock (esto debería hacerse si el sistema lo requiere)
+                $stmtStock = $this->conn->prepare("UPDATE inventario SET stock = stock - :cantidad WHERE producto_id = :producto_id");
+                $stmtStock->bindParam(":cantidad", $item['cantidad']);
+                $stmtStock->bindParam(":producto_id", $item['producto_id']);
+                $stmtStock->execute();
             }
 
             $this->conn->commit();
-            return true;
+            return $venta_id;
         } catch (Exception $e) {
             $this->conn->rollBack();
             return false;
@@ -126,7 +133,7 @@ class Venta {
                   ORDER BY mes ASC";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':meses', $meses, PDO::PARAM_INT);
-        
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

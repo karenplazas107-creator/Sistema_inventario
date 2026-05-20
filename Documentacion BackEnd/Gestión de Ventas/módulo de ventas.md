@@ -1,59 +1,34 @@
-# Módulo de Gestión de Ventas
+# Gestión de Ventas
 
-Este módulo centraliza el registro de transacciones comerciales del sistema, permitiendo un control detallado de los ingresos y el historial de ventas por empleado.
-
-*Archivos involucrados:*
-
-- **Controlador:** `controllers/VentaController.php`
-- **Modelo:** `models/Venta.php`
-- **Vistas:**
-    - Listado Histórico: `views/ventas/index.php`
-    - Formulario de Registro: `views/ventas/crear.php`
-    - Detalle de Venta: `views/ventas/ver.php`
+El módulo de ventas es el núcleo comercial del sistema **Almacén Europa**. Permite procesar transacciones de forma rápida, segura y profesional, integrando el control de inventario en tiempo real.
 
 ---
 
 ## 1. Roles y Permisos
 
-El acceso a las funciones de ventas está segmentado por el rol del usuario:
-
-- **Administrador / Vendedor:** Tienen control total. Pueden listar, ver detalles, registrar nuevas ventas y **son los únicos con permiso para editar o eliminar** registros.
-- **Bodeguero:** Solo tiene permiso para **registrar** ventas (útil si también despacha productos). No tiene acceso a la edición ni eliminación.
-
----
-
-## 2. Proceso de Venta (Carrito de Compras Interno)
-
-La creación de una venta (`crear.php`) utiliza una interfaz dinámica:
-
-1. **Selección de Productos:** Los productos se añaden a una lista temporal (carrito) mediante JavaScript.
-2. **Cálculo Automático:** El sistema calcula subtotales y el total general en tiempo real mientras se ajustan las cantidades.
-3. **Validación:** No se permite procesar una venta con el carrito vacío (validación tanto en JS como en PHP).
-4. **Persistencia:** Al guardar, se abre una **Transacción SQL** que asegura que se inserte la cabecera de la venta y todos sus detalles (productos, cantidades, precios en ese momento) de forma atómica.
+| Acción | Descripción | Rol Autorizado |
+| :--- | :--- | :--- |
+| **Registrar Venta** | Registro de nuevos pedidos a través de la interfaz POS premium. | Administrador, Vendedor, Bodeguero |
+| **Calcular Cambio** | Cálculo automático del dinero a devolver al cliente en tiempo real. | Administrador, Vendedor, Bodeguero |
+| **Método de Pago** | Selección entre Efectivo, Tarjeta o Transferencia. | Administrador, Vendedor, Bodeguero |
+| **Ver Historial** | Listado completo de ventas realizadas. | Administrador, Vendedor |
+| **Eliminar Venta** | Cancelación de un registro de venta (requiere permisos). | Administrador, Vendedor |
 
 ---
 
-## 3. Lógica del Modelo (Transaccionalidad)
+## 2. Funcionalidades del POS Premium
 
-El método `crear()` en `Venta.php` es crítico:
-- Inicia una transacción (`beginTransaction`).
-- Inserta en la tabla `ventas` y obtiene el `id` generado.
-- Itera los productos e inserta en `detalle_venta` referenciando el `id` de la venta.
-- Si todo es correcto, hace `commit`. Si algo falla, hace `rollBack` para evitar datos huérfanos.
-
----
-
-## 4. Eliminación de Ventas
-
-- **Advertencia:** La eliminación de una venta borra tanto la cabecera como sus detalles asociados.
-- **Seguridad:** Solo usuarios autorizados pueden ejecutar esta acción. Se recomienda usarla solo para corrección de errores administrativos.
+El nuevo módulo de ventas incluye:
+- **Interfaz Dividida**: Panel de productos con imágenes y filtros rápidos, y panel de carrito tipo factura para una mejor visualización.
+- **Validación de Stock**: El sistema impide agregar productos sin existencias en tiempo real, evitando errores de facturación.
+- **Persistencia de Datos**: Se registra automáticamente el empleado (cajero) que realiza la operación y el método de pago utilizado.
+- **Control de Inventario**: Al confirmar la venta, el stock se descuenta automáticamente de la tabla `inventario` para mantener los datos actualizados.
 
 ---
 
-## 5. Reportes Integrados
+## 3. Flujo de Operación
 
-El modelo `Venta.php` no solo gestiona el CRUD, sino que contiene toda la inteligencia de negocio para el módulo de reportes, incluyendo:
-- Ventas por día y mes.
-- Ranking de productos más vendidos.
-- Desempeño por vendedor (ingresos generados).
-- Resumen general (Ticket promedio, venta máxima, etc.).
+1.  **Búsqueda**: El cajero busca el producto por nombre o código.
+2.  **Selección**: Se añaden los productos al carrito con un clic.
+3.  **Pago**: Se selecciona el método de pago y se ingresa el monto recibido (si es efectivo).
+4.  **Confirmación**: Se valida la transacción y se guarda en la base de datos, actualizando el stock.

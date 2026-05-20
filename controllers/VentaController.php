@@ -28,10 +28,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $usuario_id = $_SESSION['usuario']['id']; // El empleado que registra la venta
-        $productos = $_POST['productos'] ?? [];
-        $cantidades = $_POST['cantidades'] ?? [];
-        $precios = $_POST['precios'] ?? [];
+        $usuario_id  = $_SESSION['usuario']['id_usuario']; // ID correcto de sesión
+        $productos   = $_POST['productos'] ?? [];
+        $cantidades  = $_POST['cantidades'] ?? [];
+        $precios     = $_POST['precios'] ?? [];
+        $metodo_pago = $_POST['metodo_pago'] ?? 'Efectivo';
         
         $total = 0;
         $detalles = [];
@@ -54,8 +55,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        if ($ventaModel->crear($usuario_id, $total, $detalles)) {
-            $_SESSION['alert'] = ['icon' => 'success', 'title' => 'Éxito', 'text' => 'Venta registrada correctamente.'];
+        $ventaId = $ventaModel->crear($usuario_id, $total, $detalles, $metodo_pago);
+        if ($ventaId) {
+            $_SESSION['alert'] = [
+                'icon' => 'success', 
+                'title' => 'Venta Registrada', 
+                'text' => '¿Deseas imprimir el comprobante?',
+                'venta_id' => $ventaId // ID para impresión
+            ];
             header("Location: ../views/ventas/index.php");
             exit;
         } else {

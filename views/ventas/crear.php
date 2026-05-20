@@ -14,6 +14,7 @@ if (!in_array($rol, ['Administrador', 'Vendedor', 'Bodeguero'])) {
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../models/Producto.php';
 require_once __DIR__ . '/../../models/Categoria.php';
+require_once __DIR__ . '/../../config/rutas.php';
 
 $database = new Database();
 $db       = $database->conectar();
@@ -23,357 +24,489 @@ $categoriaModel = new Categoria($db);
 $productos  = $productoModel->obtenerTodos();
 $categorias = $categoriaModel->obtenerTodas();
 
-$titulo = "Nueva Venta";
+$titulo = "Módulo de Venta - POS";
 require_once __DIR__ . '/../layouts/header.php';
 require_once __DIR__ . '/../layouts/sidebar.php';
 ?>
 
-<?php if (isset($_SESSION['alert'])): ?>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    Swal.fire({
-        icon:  '<?= $_SESSION['alert']['icon'] ?>',
-        title: '<?= addslashes($_SESSION['alert']['title']) ?>',
-        text:  '<?= addslashes($_SESSION['alert']['text']) ?>',
-        confirmButtonColor: '#1e3a8a'
-    });
-});
-</script>
-<?php unset($_SESSION['alert']); endif; ?>
-
 <style>
-    .prod-card {
-        transition: all .2s ease;
+    /* Estilos Premium para el POS */
+    :root {
+        --pos-header-bg: #1e3a8a;
+        --pos-accent: #22c55e;
+        --pos-bg: #f8fafc;
+    }
+
+    .pos-container {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 1.5rem;
+        height: calc(100vh - 120px);
+        min-height: 650px;
+    }
+
+    /* Panel Izquierdo: Productos */
+    .products-panel {
+        display: flex;
+        flex-direction: column;
+        background: white;
+        border-radius: 1.5rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
+    .pos-header {
+        background: var(--pos-header-bg);
+        color: white;
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 1rem;
+        padding: 1.5rem;
+        overflow-y: auto;
+        flex-grow: 1;
+        background: var(--pos-bg);
+    }
+
+    .pos-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 0.75rem;
+        text-align: center;
+        transition: all 0.2s;
         cursor: pointer;
-        border: 2px solid transparent;
+        border: 1px solid #f1f5f9;
+        display: flex;
+        flex-direction: column;
+        position: relative;
     }
-    .prod-card:hover {
-        border-color: #2563eb;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(37,99,235,.12);
+
+    .pos-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 20px rgba(30,58,138,0.08);
+        border-color: #3b82f6;
     }
-    .prod-card.agotado {
-        opacity: .7;
-        border-color: #fca5a5;
+
+    .pos-card img {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 0.75rem;
+        margin-bottom: 0.75rem;
+        background: #f8fafc;
     }
-    .carrito-item { animation: slideIn .2s ease; }
-    @keyframes slideIn {
-        from { opacity:0; transform:translateY(-6px); }
-        to   { opacity:1; transform:translateY(0); }
+
+    .pos-card .price-tag {
+        font-weight: 800;
+        color: #16a34a;
+        font-size: 1.1rem;
     }
-    .cat-pill { cursor:pointer; transition:all .2s; }
-    .cat-pill.active { background:#1e3a8a; color:#fff; }
+
+    .pos-card .stock-badge {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: rgba(255,255,255,0.9);
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #64748b;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    /* Panel Derecho: Carrito */
+    .cart-panel {
+        display: flex;
+        flex-direction: column;
+        background: white;
+        border-radius: 1.5rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+    }
+
+    .cart-table-wrapper {
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
+    .cart-table {
+        width: 100%;
+        font-size: 0.85rem;
+    }
+
+    .cart-table th {
+        background: #f8fafc;
+        padding: 0.75rem;
+        text-align: left;
+        color: #64748b;
+        font-weight: 600;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .cart-table td {
+        padding: 0.75rem;
+        border-bottom: 1px dotted #f1f5f9;
+    }
+
+    .payment-section {
+        background: #f8fafc;
+        padding: 1.5rem;
+        border-top: 2px solid #e2e8f0;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .total-amount {
+        font-size: 1.75rem;
+        font-weight: 900;
+        color: #1e3a8a;
+    }
+
+    .btn-confirm {
+        background: #22c55e;
+        color: white;
+        width: 100%;
+        padding: 1rem;
+        border-radius: 1rem;
+        font-weight: 700;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+    }
+
+    .btn-confirm:hover {
+        background: #16a34a;
+        transform: scale(1.02);
+    }
+
+    .payment-input {
+        background: white;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        width: 100px;
+        text-align: right;
+        font-weight: 600;
+    }
+
+    .change-display {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #ef4444;
+    }
+
+    .change-display.positive {
+        color: #22c55e;
+    }
+
+    /* Animaciones */
+    @keyframes addToCart {
+        0% { transform: scale(1); }
+        50% { transform: scale(0.95); }
+        100% { transform: scale(1); }
+    }
+    .anim-add { animation: addToCart 0.2s ease-out; }
 </style>
 
-<!-- ── Encabezado ─────────────────────────────────────────────────────────── -->
-<div class="mb-5 flex items-center gap-4">
-    <a href="index.php" class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition flex-shrink-0">
-        <i class="fas fa-arrow-left text-sm"></i>
-    </a>
-    <div>
-        <h2 class="text-2xl font-bold text-gray-800">Nueva Venta</h2>
-        <p class="text-sm text-gray-500">Selecciona productos y procesa la venta.</p>
-    </div>
-</div>
-
-<div class="flex gap-6" style="height: calc(100vh - 220px); min-height: 500px;">
-
-    <!-- ── Panel izquierdo: Productos ──────────────────────────────────────── -->
-    <div class="flex-1 flex flex-col card overflow-hidden">
-
-        <!-- Buscador + filtro categoría -->
-        <div class="p-4 border-b border-gray-100 space-y-3">
-            <div class="relative">
-                <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                <input id="buscarProducto" type="text" placeholder="Buscar producto por nombre o código..."
-                       class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition">
+<div class="pos-container">
+    
+    <!-- 🛒 PANEL DE PRODUCTOS -->
+    <div class="products-panel">
+        <div class="pos-header">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-cash-register text-2xl"></i>
+                <h2 class="text-xl font-bold uppercase tracking-wider">Módulo de Venta</h2>
             </div>
-            <!-- Pills categorías -->
-            <div class="flex flex-wrap gap-2">
-                <span class="cat-pill active px-3 py-1 rounded-full text-xs font-semibold bg-brand-900 text-white"
-                      data-cat="" onclick="filtrarCategoria(this)">Todos</span>
+            <div class="flex items-center gap-6 text-sm opacity-90">
+                <span><i class="fas fa-user-circle mr-2"></i>Cajero: <strong><?= htmlspecialchars($_SESSION['usuario']['nombres']) ?></strong></span>
+                <span><i class="fas fa-calendar-alt mr-2"></i><?= date('d/m/Y') ?></span>
+                <i class="fas fa-cog cursor-pointer hover:rotate-90 transition-transform"></i>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="p-4 bg-white border-b border-gray-100 flex gap-4 items-center">
+            <div class="relative flex-1">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="posSearch" placeholder="Buscar producto (nombre o código)..."
+                       class="w-full pl-11 pr-4 py-3 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
+            </div>
+            <div class="flex gap-2 overflow-x-auto pb-1">
+                <button onclick="filterPos('')" class="cat-pill active px-4 py-2 rounded-xl text-xs font-bold bg-blue-100 text-blue-700 whitespace-nowrap">TODOS</button>
                 <?php foreach ($categorias as $cat): ?>
-                <span class="cat-pill px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600"
-                      data-cat="<?= $cat['id'] ?>" onclick="filtrarCategoria(this)">
-                    <?= htmlspecialchars($cat['nombre']) ?>
-                </span>
+                <button onclick="filterPos('<?= $cat['id'] ?>')" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition whitespace-nowrap">
+                    <?= mb_strtoupper($cat['nombre']) ?>
+                </button>
                 <?php endforeach; ?>
             </div>
         </div>
 
-        <!-- Grid de productos -->
-        <div class="flex-1 overflow-y-auto p-4">
-            <div id="gridProductos" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+        <!-- Grid -->
+        <div class="product-grid" id="posGrid">
             <?php foreach ($productos as $p):
-                $agotado = $p['stock'] <= 0;
-                $imgSrc  = !empty($p['imagen'])
-                    ? '../../img/productos/' . htmlspecialchars($p['imagen'])
-                    : 'https://placehold.co/200x160/e2e8f0/94a3b8?text=?';
+                $img = !empty($p['imagen']) ? '../../img/productos/'.$p['imagen'] : 'https://placehold.co/200x200/e2e8f0/94a3b8?text=?';
             ?>
-            <div class="prod-card bg-white rounded-xl p-3 border border-gray-100 shadow-sm <?= $agotado ? 'agotado' : '' ?>"
+            <div class="pos-card" 
                  data-id="<?= $p['id'] ?>"
                  data-nombre="<?= strtolower(htmlspecialchars($p['nombre'])) ?>"
-                 data-categoria="<?= $p['categoria_id'] ?>"
-                 data-precio="<?= $p['precio_venta'] ?>"
-                 data-stock="<?= $p['stock'] ?>"
-                 onclick="agregarAlCarrito(<?= $p['id'] ?>, '<?= addslashes(htmlspecialchars($p['nombre'])) ?>', <?= $p['precio_venta'] ?>, <?= $p['stock'] ?>)">
-
-                <!-- Imagen -->
-                <div class="relative mb-2 rounded-lg overflow-hidden bg-gray-50" style="height:90px;">
-                    <img src="<?= $imgSrc ?>" alt=""
-                         class="w-full h-full object-cover"
-                         onerror="this.src='https://placehold.co/200x160/e2e8f0/94a3b8?text=?'">
-                    <?php if ($agotado): ?>
-                    <div class="absolute inset-0 bg-white/70 flex items-center justify-center">
-                        <span class="text-xs font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-200">Agotado</span>
-                    </div>
-                    <?php else: ?>
-                    <span class="absolute top-1.5 right-1.5 text-xs bg-white/90 text-gray-600 px-1.5 py-0.5 rounded-md font-medium shadow-sm">
-                        <?= $p['stock'] ?> uds
-                    </span>
-                    <?php endif; ?>
-                </div>
-
-                <!-- Info -->
-                <div class="text-xs text-brand-600 font-semibold mb-0.5 truncate">
-                    <?= htmlspecialchars($p['categoria_nombre'] ?? '') ?>
-                </div>
-                <div class="font-semibold text-gray-800 text-sm leading-tight mb-1 line-clamp-2 prod-nombre">
-                    <?= htmlspecialchars($p['nombre']) ?>
-                </div>
-                <div class="flex items-center justify-between mt-auto">
-                    <span class="font-bold text-gray-900">$<?= number_format($p['precio_venta'], 2, ',', '.') ?></span>
-                    <div class="w-7 h-7 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center hover:bg-brand-600 hover:text-white transition">
-                        <i class="fas fa-plus text-xs"></i>
-                    </div>
-                </div>
+                 data-cat="<?= $p['categoria_id'] ?>"
+                 onclick="addToCart(<?= $p['id'] ?>, '<?= addslashes($p['nombre']) ?>', <?= $p['precio_venta'] ?>, <?= $p['stock'] ?>)">
+                <span class="stock-badge"><?= $p['stock'] ?> uds</span>
+                <img src="<?= $img ?>" alt="">
+                <p class="text-xs font-bold text-gray-800 line-clamp-2 mb-2 leading-tight"><?= htmlspecialchars($p['nombre']) ?></p>
+                <p class="price-tag mt-auto">$<?= number_format($p['precio_venta'], 0, ',', '.') ?></p>
             </div>
             <?php endforeach; ?>
-            </div>
+        </div>
 
-            <!-- Sin resultados -->
-            <div id="sinResultados" class="hidden text-center py-12 text-gray-400">
-                <i class="fas fa-box-open text-4xl mb-3 block opacity-20"></i>
-                <p class="text-sm">No se encontraron productos.</p>
-            </div>
+        <!-- Botones de acción inferior -->
+        <div class="p-4 border-t border-gray-100 flex justify-center gap-4">
+            <button onclick="clearCart()" class="flex items-center gap-2 px-6 py-2 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 transition text-sm font-bold">
+                <i class="fas fa-eraser"></i> LIMPIAR VENTA
+            </button>
+            <button class="flex items-center gap-2 px-6 py-2 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition text-sm font-bold">
+                <i class="fas fa-file-invoice-dollar"></i> GUARDAR COTIZACIÓN
+            </button>
         </div>
     </div>
 
-    <!-- ── Panel derecho: Carrito ───────────────────────────────────────────── -->
-    <div class="flex flex-col card overflow-hidden" style="width:320px;min-width:300px;">
-
-        <!-- Header carrito -->
-        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="font-bold text-gray-800 flex items-center gap-2">
-                <i class="fas fa-shopping-cart text-brand-600"></i>
-                Carrito
+    <!-- 🧾 PANEL DE CARRITO -->
+    <div class="cart-panel">
+        <div class="p-5 border-b border-gray-100">
+            <h3 class="font-black text-gray-800 flex items-center gap-3">
+                <i class="fas fa-shopping-basket text-blue-600"></i>
+                DETALLE DE LA VENTA
             </h3>
-            <span id="carritoCount" class="w-6 h-6 rounded-full bg-brand-900 text-white text-xs font-bold flex items-center justify-center">0</span>
         </div>
 
-        <!-- Items del carrito -->
-        <div id="carritoItems" class="flex-1 overflow-y-auto p-4 space-y-2">
-            <div id="carritoVacio" class="flex flex-col items-center justify-center h-full text-gray-400 py-8">
-                <i class="fas fa-shopping-basket text-4xl mb-3 opacity-20"></i>
-                <p class="text-sm">El carrito está vacío</p>
-                <p class="text-xs mt-1">Haz clic en un producto para agregarlo</p>
+        <div class="cart-table-wrapper">
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th class="text-center">Cant.</th>
+                        <th class="text-right">Precio</th>
+                        <th class="text-right">Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="cartBody">
+                    <!-- Dinámico -->
+                </tbody>
+            </table>
+            
+            <div id="cartEmpty" class="flex flex-col items-center justify-center py-20 text-gray-300">
+                <i class="fas fa-cart-plus text-6xl mb-4 opacity-20"></i>
+                <p class="font-bold">Carrito vacío</p>
             </div>
         </div>
 
-        <!-- Totales + form -->
-        <form id="formVenta" method="POST" action="../../controllers/VentaController.php?accion=crear">
-            <div id="inputsOcultos"></div>
-
-            <div class="p-5 border-t border-gray-100 bg-gray-50">
-                <div class="flex justify-between text-sm text-gray-600 mb-1.5">
-                    <span>Subtotal</span>
-                    <span id="resSubtotal">$0,00</span>
+        <!-- Sección de Pago -->
+        <div class="payment-section">
+            <div class="space-y-3 mb-6">
+                <div class="flex justify-between text-sm text-gray-500 font-bold">
+                    <span>SUBTOTAL</span>
+                    <span id="posSubtotal">$0</span>
                 </div>
-                <div class="flex justify-between text-xl font-bold text-gray-900 mb-5">
-                    <span>Total</span>
-                    <span id="resTotal" class="text-brand-900">$0,00</span>
+                <div class="flex justify-between text-sm text-gray-500 font-bold">
+                    <span>DESCUENTO</span>
+                    <span class="text-blue-500">-$0</span>
                 </div>
-
-                <button type="button" onclick="confirmarVenta()"
-                        class="w-full py-3.5 rounded-xl bg-brand-900 text-white font-bold text-base hover:bg-brand-800 transition shadow-lg flex items-center justify-center gap-2">
-                    <i class="fas fa-check-circle"></i> Procesar Venta
-                </button>
-                <button type="button" onclick="limpiarCarrito()"
-                        class="w-full mt-2 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-sm font-medium hover:bg-gray-100 transition">
-                    <i class="fas fa-trash mr-1.5"></i> Vaciar carrito
-                </button>
+                <div class="total-row">
+                    <span class="font-black text-gray-800">TOTAL</span>
+                    <span id="posTotal" class="total-amount text-green-600">$0</span>
+                </div>
             </div>
-        </form>
+
+            <div class="grid grid-cols-1 gap-4 mb-6">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-black text-gray-500">FORMA DE PAGO</label>
+                    <select id="posMetodo" class="bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm font-bold focus:ring-0">
+                        <option value="Efectivo">💵 EFECTIVO</option>
+                        <option value="Tarjeta">💳 TARJETA</option>
+                        <option value="Transferencia">📱 TRANSFERENCIA</option>
+                    </select>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-black text-gray-500">RECIBIDO</label>
+                    <input type="number" id="posRecibido" oninput="calcChange()" class="payment-input" value="0">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-black text-gray-500">CAMBIO</label>
+                    <span id="posCambio" class="change-display">$0</span>
+                </div>
+            </div>
+
+            <form id="formVenta" method="POST" action="../../controllers/VentaController.php?accion=crear">
+                <div id="posHiddenInputs"></div>
+                <input type="hidden" name="metodo_pago" id="hiddenMetodo">
+                
+                <button type="button" onclick="submitVenta()" class="btn-confirm">
+                    <i class="fas fa-check-circle"></i> CONFIRMAR VENTA
+                </button>
+            </form>
+        </div>
     </div>
-
 </div>
 
 <script>
-// ── Estado del carrito ─────────────────────────────────────────────────────
-let carrito = {}; // { id: { id, nombre, precio, cantidad, stock } }
+    let cart = {};
 
-// ── Filtros ────────────────────────────────────────────────────────────────
-let catActiva = '';
-
-document.getElementById('buscarProducto').addEventListener('input', filtrar);
-
-function filtrarCategoria(el) {
-    document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-    catActiva = el.dataset.cat;
-    filtrar();
-}
-
-function filtrar() {
-    const q    = document.getElementById('buscarProducto').value.toLowerCase().trim();
-    const cards = document.querySelectorAll('.prod-card');
-    let visible = 0;
-
-    cards.forEach(function (card) {
-        const nombre = card.dataset.nombre || '';
-        const cat    = card.dataset.categoria || '';
-        const matchQ   = !q        || nombre.includes(q);
-        const matchCat = !catActiva || cat === catActiva;
-        const show = matchQ && matchCat;
-        card.style.display = show ? '' : 'none';
-        if (show) visible++;
-    });
-
-    document.getElementById('sinResultados').classList.toggle('hidden', visible > 0);
-}
-
-// ── Agregar al carrito ─────────────────────────────────────────────────────
-function agregarAlCarrito(id, nombre, precio, stock) {
-    if (carrito[id]) {
-        carrito[id].cantidad++;
-    } else {
-        carrito[id] = { id, nombre, precio: parseFloat(precio), cantidad: 1, stock: parseInt(stock) };
-    }
-    renderCarrito();
-}
-
-// ── Cambiar cantidad ───────────────────────────────────────────────────────
-function cambiarCantidad(id, delta) {
-    if (!carrito[id]) return;
-    const nueva = carrito[id].cantidad + delta;
-    if (nueva <= 0) {
-        delete carrito[id];
-    } else {
-        carrito[id].cantidad = nueva;
-    }
-    renderCarrito();
-}
-
-function eliminarItem(id) {
-    delete carrito[id];
-    renderCarrito();
-}
-
-function limpiarCarrito() {
-    carrito = {};
-    renderCarrito();
-}
-
-// ── Renderizar carrito ─────────────────────────────────────────────────────
-function renderCarrito() {
-    const items    = Object.values(carrito);
-    const container = document.getElementById('carritoItems');
-    const vacio    = document.getElementById('carritoVacio');
-    const count    = document.getElementById('carritoCount');
-    const inputs   = document.getElementById('inputsOcultos');
-
-    count.textContent = items.reduce((s, i) => s + i.cantidad, 0);
-
-    if (items.length === 0) {
-        container.innerHTML = '';
-        container.appendChild(vacio);
-        vacio.style.display = 'flex';
-        actualizarTotales(0);
-        inputs.innerHTML = '';
-        return;
-    }
-
-    vacio.style.display = 'none';
-
-    let html = '';
-    let total = 0;
-    let inputsHtml = '';
-
-    items.forEach(function (item) {
-        const linea = item.precio * item.cantidad;
-        total += linea;
-        html += `
-        <div class="carrito-item bg-white rounded-xl border border-gray-100 p-3 shadow-sm">
-            <div class="flex items-start justify-between gap-2 mb-2">
-                <div class="font-semibold text-gray-800 text-xs leading-tight flex-1">${item.nombre}</div>
-                <button type="button" onclick="eliminarItem(${item.id})"
-                        class="w-5 h-5 rounded-full bg-red-50 text-red-400 hover:bg-red-100 flex items-center justify-center flex-shrink-0 transition">
-                    <i class="fas fa-times text-xs"></i>
-                </button>
-            </div>
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-1.5 bg-gray-50 rounded-lg p-1 border border-gray-100">
-                    <button type="button" onclick="cambiarCantidad(${item.id}, -1)"
-                            class="w-6 h-6 rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 flex items-center justify-center transition">
-                        <i class="fas fa-minus text-xs"></i>
-                    </button>
-                    <span class="w-7 text-center text-sm font-bold text-gray-800">${item.cantidad}</span>
-                    <button type="button" onclick="cambiarCantidad(${item.id}, 1)"
-                            class="w-6 h-6 rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 flex items-center justify-center transition">
-                        <i class="fas fa-plus text-xs"></i>
-                    </button>
-                </div>
-                <span class="font-bold text-gray-800 text-sm">
-                    $${linea.toLocaleString('es-CO', {minimumFractionDigits:2})}
-                </span>
-            </div>
-        </div>`;
-
-        inputsHtml += `
-            <input type="hidden" name="productos[]"  value="${item.id}">
-            <input type="hidden" name="precios[]"    value="${item.precio}">
-            <input type="hidden" name="cantidades[]" value="${item.cantidad}">`;
-    });
-
-    container.innerHTML = html;
-    inputs.innerHTML = inputsHtml;
-    actualizarTotales(total);
-}
-
-function actualizarTotales(total) {
-    const fmt = total.toLocaleString('es-CO', { minimumFractionDigits: 2 });
-    document.getElementById('resSubtotal').textContent = '$' + fmt;
-    document.getElementById('resTotal').textContent    = '$' + fmt;
-}
-
-// ── Confirmar y procesar ───────────────────────────────────────────────────
-function confirmarVenta() {
-    const items = Object.values(carrito);
-    if (items.length === 0) {
-        Swal.fire({ icon:'warning', title:'Carrito vacío', text:'Agrega al menos un producto para continuar.', confirmButtonColor:'#1e3a8a' });
-        return;
-    }
-
-    const total = items.reduce((s, i) => s + i.precio * i.cantidad, 0);
-
-    Swal.fire({
-        title: '¿Procesar venta?',
-        html: `<div class="text-gray-600 text-sm">
-                   <strong>${items.length} producto(s)</strong> — Total:
-                   <strong class="text-brand-900 text-lg">$${total.toLocaleString('es-CO',{minimumFractionDigits:2})}</strong>
-               </div>`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#1e3a8a',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: '<i class="fas fa-check mr-1"></i> Confirmar',
-        cancelButtonText: 'Cancelar'
-    }).then(function (result) {
-        if (result.isConfirmed) {
-            document.getElementById('formVenta').submit();
+    function addToCart(id, nombre, precio, stock) {
+        if (cart[id]) {
+            if (cart[id].qty >= stock) {
+                Swal.fire({ icon: 'warning', title: 'Stock insuficiente', text: 'No hay más existencias de este producto.', timer: 2000, showConfirmButton: false });
+                return;
+            }
+            cart[id].qty++;
+        } else {
+            cart[id] = { id, nombre, precio, qty: 1 };
         }
+        
+        // Animación visual
+        const card = document.querySelector(`.pos-card[data-id="${id}"]`);
+        card.classList.add('anim-add');
+        setTimeout(() => card.classList.remove('anim-add'), 200);
+
+        renderCart();
+    }
+
+    function removeOne(id) {
+        if (cart[id].qty > 1) {
+            cart[id].qty--;
+        } else {
+            delete cart[id];
+        }
+        renderCart();
+    }
+
+    function clearCart() {
+        if (Object.keys(cart).length === 0) return;
+        Swal.fire({
+            title: '¿Vaciar carrito?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'Sí, vaciar'
+        }).then((res) => { if(res.isConfirmed) { cart = {}; renderCart(); } });
+    }
+
+    function renderCart() {
+        const body = document.getElementById('cartBody');
+        const empty = document.getElementById('cartEmpty');
+        const items = Object.values(cart);
+        
+        body.innerHTML = '';
+        let total = 0;
+        let inputs = '';
+
+        if (items.length === 0) {
+            empty.classList.remove('hidden');
+        } else {
+            empty.classList.add('hidden');
+            items.forEach(item => {
+                const sub = item.precio * item.qty;
+                total += sub;
+                body.innerHTML += `
+                    <tr class="hover:bg-blue-50 transition-colors">
+                        <td class="font-bold text-gray-700 py-4">${item.nombre}</td>
+                        <td class="text-center font-black">${item.qty}</td>
+                        <td class="text-right text-gray-500 font-bold">$${item.precio.toLocaleString()}</td>
+                        <td class="text-right font-black text-blue-900">$${sub.toLocaleString()}</td>
+                        <td class="text-center">
+                            <button onclick="removeOne(${item.id})" class="text-red-300 hover:text-red-500 transition-colors">
+                                <i class="fas fa-minus-circle"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                inputs += `
+                    <input type="hidden" name="productos[]" value="${item.id}">
+                    <input type="hidden" name="cantidades[]" value="${item.qty}">
+                    <input type="hidden" name="precios[]" value="${item.precio}">
+                `;
+            });
+        }
+
+        document.getElementById('posSubtotal').textContent = '$' + total.toLocaleString();
+        document.getElementById('posTotal').textContent = '$' + total.toLocaleString();
+        document.getElementById('posHiddenInputs').innerHTML = inputs;
+        calcChange();
+    }
+
+    function calcChange() {
+        const total = Object.values(cart).reduce((acc, i) => acc + (i.precio * i.qty), 0);
+        const recibo = parseFloat(document.getElementById('posRecibido').value) || 0;
+        const cambio = recibo - total;
+        const display = document.getElementById('posCambio');
+        
+        display.textContent = '$' + (cambio < 0 ? 0 : cambio).toLocaleString();
+        display.classList.toggle('positive', cambio >= 0);
+    }
+
+    function submitVenta() {
+        if (Object.keys(cart).length === 0) {
+            Swal.fire({ icon: 'error', title: 'Ups...', text: 'El carrito está vacío' });
+            return;
+        }
+
+        const total = Object.values(cart).reduce((acc, i) => acc + (i.precio * i.qty), 0);
+        const recibo = parseFloat(document.getElementById('posRecibido').value) || 0;
+        const metodo = document.getElementById('posMetodo').value;
+
+        if (metodo === 'Efectivo' && recibo < total) {
+            Swal.fire({ icon: 'warning', title: 'Pago insuficiente', text: 'El monto recibido es menor al total.' });
+            return;
+        }
+
+        document.getElementById('hiddenMetodo').value = metodo;
+
+        Swal.fire({
+            title: '¿Confirmar venta?',
+            html: `Total a cobrar: <b class="text-green-600">$${total.toLocaleString()}</b>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#22c55e',
+            confirmButtonText: 'Sí, finalizar'
+        }).then(res => {
+            if (res.isConfirmed) document.getElementById('formVenta').submit();
+        });
+    }
+
+    // Filtros visuales
+    document.getElementById('posSearch').addEventListener('input', e => {
+        const q = e.target.value.toLowerCase();
+        document.querySelectorAll('.pos-card').forEach(card => {
+            card.style.display = card.dataset.nombre.includes(q) ? 'flex' : 'none';
+        });
     });
-}
+
+    function filterPos(catId) {
+        document.querySelectorAll('.cat-pill').forEach(btn => btn.classList.remove('active', 'bg-blue-100', 'text-blue-700'));
+        event.target.classList.add('active', 'bg-blue-100', 'text-blue-700');
+        
+        document.querySelectorAll('.pos-card').forEach(card => {
+            card.style.display = (!catId || card.dataset.cat == catId) ? 'flex' : 'none';
+        });
+    }
 </script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

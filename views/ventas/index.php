@@ -38,21 +38,6 @@ require_once __DIR__ . '/../layouts/header.php';
 require_once __DIR__ . '/../layouts/sidebar.php';
 ?>
 
-<?php if (isset($_SESSION['alert'])): ?>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    Swal.fire({
-        icon:  '<?= $_SESSION['alert']['icon'] ?>',
-        title: '<?= addslashes($_SESSION['alert']['title']) ?>',
-        text:  '<?= addslashes($_SESSION['alert']['text']) ?>',
-        confirmButtonColor: '#1e3a8a',
-        timer: 3500,
-        timerProgressBar: true
-    });
-});
-</script>
-<?php unset($_SESSION['alert']); endif; ?>
-
 <style>
     .venta-row { transition: background .15s; }
     .venta-row:hover { background: #f8fafc; }
@@ -202,6 +187,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                     class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition text-xs">
                                 <i class="fas fa-eye"></i>
                             </button>
+                            <a href="factura.php?id=<?= $v['id'] ?>" target="_blank"
+                               title="Imprimir Factura"
+                               class="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition text-xs">
+                                <i class="fas fa-print"></i>
+                            </a>
                             <?php if ($puedeEliminar): ?>
                             <button onclick="confirmarEliminar(<?= $v['id'] ?>)"
                                     title="Eliminar venta"
@@ -342,6 +332,13 @@ function verDetalle(id) {
             <span class="text-2xl font-bold text-brand-900">
                 $${parseFloat(venta ? venta.total : subtotal).toLocaleString('es-CO', {minimumFractionDigits:2})}
             </span>
+        </div>
+        
+        <div class="mt-6">
+            <a href="factura.php?id=${id}" target="_blank" 
+               class="w-full flex items-center justify-center gap-2 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-200">
+                <i class="fas fa-print"></i> IMPRIMIR FACTURA
+            </a>
         </div>`;
 
     document.getElementById('modalDetalle').classList.remove('hidden');

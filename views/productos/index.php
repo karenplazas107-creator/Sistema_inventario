@@ -8,6 +8,7 @@ if (!isset($_SESSION['usuario'])) {
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../models/Producto.php';
 require_once __DIR__ . '/../../models/Categoria.php';
+require_once __DIR__ . '/../../config/rutas.php';
 
 $database = new Database();
 $db       = $database->conectar();
@@ -168,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <?php else: ?>
                 <?php foreach ($productos as $p):
                     $imgSrc = !empty($p['imagen'])
-                        ? '../../img/productos/' . htmlspecialchars($p['imagen'])
+                        ? IMG_PRODUCTOS . htmlspecialchars($p['imagen'])
                         : 'https://placehold.co/56x56/e2e8f0/94a3b8?text=?';
 
                     $stockPct = $p['stock_minimo'] > 0

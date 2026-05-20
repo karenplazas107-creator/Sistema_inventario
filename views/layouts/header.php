@@ -91,8 +91,45 @@ $titulo = $titulo ?? 'Dashboard';
             transform: translateY(-1px);
         }
     </style>
-
 </head>
 
 <body class="min-h-screen">
+
+<?php if (isset($_SESSION['alert'])): ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const alertData = <?= json_encode($_SESSION['alert']) ?>;
+        
+        // Si hay una venta_id, usamos la lógica especial de impresión (solo si estamos en la vista de ventas)
+        if (alertData.venta_id && window.location.href.includes('ventas/index.php')) {
+            Swal.fire({
+                icon: alertData.icon,
+                title: alertData.title,
+                text: alertData.text,
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#1e3a8a',
+                confirmButtonText: '<i class="fas fa-print"></i> Imprimir Factura',
+                cancelButtonText: 'Cerrar',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.open('factura.php?id=' + alertData.venta_id + '&print=true', '_blank');
+                }
+            });
+        } else {
+            // Alerta normal
+            Swal.fire({
+                icon: alertData.icon,
+                title: alertData.title,
+                text: alertData.text,
+                confirmButtonColor: '#1e3a8a',
+                timer: alertData.icon === 'success' ? 3000 : 5000,
+                timerProgressBar: true
+            });
+        }
+    });
+</script>
+<?php unset($_SESSION['alert']); endif; ?>
+
 <div class="flex min-h-screen">

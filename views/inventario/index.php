@@ -8,6 +8,7 @@ if (!isset($_SESSION['usuario'])) {
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../models/Producto.php';
 require_once __DIR__ . '/../../models/Categoria.php';
+require_once __DIR__ . '/../../config/rutas.php';
 
 $database = new Database();
 $db       = $database->conectar();
@@ -206,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <?php else: ?>
                 <?php foreach ($productos as $p):
                     $imgSrc = !empty($p['imagen'])
-                        ? '../../img/productos/' . htmlspecialchars($p['imagen'])
+                        ? IMG_PRODUCTOS . htmlspecialchars($p['imagen'])
                         : 'https://placehold.co/48x48/e2e8f0/94a3b8?text=?';
 
                     $stockMax = max($p['stock_minimo'] * 3, $p['stock'], 1);
@@ -327,9 +328,27 @@ document.addEventListener('DOMContentLoaded', function () {
             <input type="hidden" name="producto_id" id="mov_producto_id">
             <input type="hidden" name="tipo"        id="mov_tipo">
 
+            <!-- Selector de producto (visible solo en modal general) -->
+            <div id="selectorProductoWrap">
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5">
+                    Producto <span class="text-red-500">*</span>
+                </label>
+                <select id="mov_selector_producto" onchange="seleccionarProducto(this)"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white transition">
+                    <option value="">— Selecciona un producto —</option>
+                    <?php foreach ($productos as $p): ?>
+                    <option value="<?= $p['id'] ?>"
+                            data-stock="<?= $p['stock'] ?>"
+                            data-nombre="<?= htmlspecialchars($p['nombre']) ?>">
+                        <?= htmlspecialchars($p['nombre']) ?> (Stock: <?= $p['stock'] ?>)
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
             <!-- Info producto -->
             <div class="bg-gray-50 rounded-xl p-4">
-                <div class="text-xs text-gray-500 mb-1">Producto</div>
+                <div class="text-xs text-gray-500 mb-1">Producto seleccionado</div>
                 <div class="font-semibold text-gray-800" id="mov_nombre">—</div>
                 <div class="flex items-center gap-4 mt-2 text-sm">
                     <span class="text-gray-500">Stock actual:</span>
@@ -511,6 +530,8 @@ document.addEventListener('keydown', function (e) {
 function abrirModalAjuste() {
     document.getElementById('modalMovTitulo').textContent = 'Registrar Movimiento';
     document.getElementById('tipoMovWrap').style.display = '';
+    document.getElementById('selectorProductoWrap').style.display = '';
+    document.getElementById('mov_selector_producto').value = '';
     document.getElementById('mov_producto_id').value = '';
     document.getElementById('mov_nombre').textContent = '— Selecciona un producto —';
     document.getElementById('mov_stock_actual').textContent = '—';
@@ -522,12 +543,31 @@ function abrirModalAjuste() {
     document.getElementById('modalMovimiento').classList.remove('hidden');
 }
 
+// ── Seleccionar producto desde el select ───────────────────────────────────
+function seleccionarProducto(sel) {
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt.value) {
+        document.getElementById('mov_producto_id').value = '';
+        document.getElementById('mov_nombre').textContent = '— Selecciona un producto —';
+        document.getElementById('mov_stock_actual').textContent = '—';
+        _stockActual = 0;
+        return;
+    }
+    document.getElementById('mov_producto_id').value = opt.value;
+    document.getElementById('mov_nombre').textContent = opt.dataset.nombre;
+    document.getElementById('mov_stock_actual').textContent = opt.dataset.stock;
+    _stockActual = parseInt(opt.dataset.stock);
+    document.getElementById('mov_cantidad').value = '';
+    document.getElementById('mov_preview').textContent = '';
+}
+
 // ── Abrir modal entrada ────────────────────────────────────────────────────
 function abrirModalEntrada(id, nombre, stock) {
     _stockActual = parseInt(stock);
     _tipoActual  = 'entrada';
     document.getElementById('modalMovTitulo').textContent = '📥 Entrada de Stock';
     document.getElementById('tipoMovWrap').style.display = 'none';
+    document.getElementById('selectorProductoWrap').style.display = 'none';
     document.getElementById('mov_producto_id').value = id;
     document.getElementById('mov_tipo').value = 'entrada';
     document.getElementById('mov_nombre').textContent = nombre;
@@ -546,6 +586,7 @@ function abrirModalSalida(id, nombre, stock) {
     _tipoActual  = 'salida';
     document.getElementById('modalMovTitulo').textContent = '📤 Salida de Stock';
     document.getElementById('tipoMovWrap').style.display = 'none';
+    document.getElementById('selectorProductoWrap').style.display = 'none';
     document.getElementById('mov_producto_id').value = id;
     document.getElementById('mov_tipo').value = 'salida';
     document.getElementById('mov_nombre').textContent = nombre;
@@ -564,6 +605,7 @@ function abrirModalCorreccion(id, nombre, stock) {
     _tipoActual  = 'correccion';
     document.getElementById('modalMovTitulo').textContent = '✏️ Corrección de Stock';
     document.getElementById('tipoMovWrap').style.display = 'none';
+    document.getElementById('selectorProductoWrap').style.display = 'none';
     document.getElementById('mov_producto_id').value = id;
     document.getElementById('mov_tipo').value = 'correccion';
     document.getElementById('mov_nombre').textContent = nombre;
