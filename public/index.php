@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es" class="scroll-smooth">
 
 <head>
@@ -115,8 +115,8 @@
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#inicio" class="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">Inicio</a>
-                    <a href="#nosotros" class="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">Nosotros</a>
-                    <a href="#funcionalidades" class="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">Funcionalidades</a>
+                    <a href="#promociones" class="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">Promociones</a>
+                    <a href="#carrito" class="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">Carrito</a>
                     
                     <a href="../views/usuarios/login.php" class="relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium text-white transition-all duration-300 bg-brand-900 rounded-full hover:bg-brand-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-600 overflow-hidden group">
                         <span class="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-black"></span>
@@ -220,120 +220,198 @@
         </div>
     </section>
 
-    <!-- Nosotros / Misión y Visión -->
-    <section id="nosotros" class="py-24 bg-gray-50 relative">
+    <!-- SECCIÓN PROMOCIONES -->
+    <section id="promociones" class="py-24 bg-gray-50 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16" data-aos="fade-up">
-                <span class="text-brand-600 font-semibold tracking-wider uppercase text-sm">Identidad Corporativa</span>
-                <h2 class="font-heading text-3xl md:text-5xl font-bold text-gray-900 mt-2 mb-6">El Motor de Nuestro Negocio</h2>
-                <p class="text-gray-600 text-lg">En Almacén Europa no solo vendemos productos, gestionamos la confianza de nuestros clientes a través de procesos impecables y tecnología de punta.</p>
+            <div class="text-center max-w-3xl mx-auto mb-10" data-aos="fade-up">
+                <span class="text-brand-600 font-semibold tracking-wider uppercase text-sm">Ofertas Especiales</span>
+                <h2 class="font-heading text-3xl md:text-5xl font-bold text-gray-900 mt-2 mb-4">Promociones del Mes</h2>
+                <p class="text-gray-600 text-lg">Los mejores precios en aseo, ropa, herramientas y abarrotes. ¡Solo en Almacén Europa!</p>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-8">
-                <!-- Misión -->
-                <div class="bg-white rounded-3xl p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group bento-hover" data-aos="fade-up" data-aos-delay="100">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-brand-50 rounded-bl-[100px] -z-10 transition-transform group-hover:scale-110"></div>
-                    <div class="w-16 h-16 bg-white rounded-2xl shadow-md border border-gray-100 flex items-center justify-center text-brand-600 text-2xl mb-8 transform -rotate-6 group-hover:rotate-0 transition-transform">
-                        <i class="fas fa-bullseye"></i>
-                    </div>
-                    <h3 class="font-heading text-2xl font-bold text-gray-900 mb-4">Nuestra Misión</h3>
-                    <p class="text-gray-600 leading-relaxed">
-                        Optimizar la operación comercial del Almacén Europa mediante una plataforma tecnológica robusta que integre de forma eficiente las ventas, el estricto control de existencias y la gestión transparente de proveedores para ofrecer siempre el mejor servicio.
-                    </p>
+            <!-- Pills filtro -->
+            <div class="flex flex-wrap justify-center gap-3 mb-10" data-aos="fade-up">
+                <button onclick="filtrarPromo('todos',this)" class="promo-pill active-pill px-5 py-2 rounded-full text-sm font-semibold border border-brand-900 transition-all">Todos</button>
+                <button onclick="filtrarPromo('aseo',this)" class="promo-pill px-5 py-2 rounded-full text-sm font-semibold bg-white text-gray-600 border border-gray-200 hover:border-brand-400 transition-all">🧹 Aseo</button>
+                <button onclick="filtrarPromo('ropa',this)" class="promo-pill px-5 py-2 rounded-full text-sm font-semibold bg-white text-gray-600 border border-gray-200 hover:border-brand-400 transition-all">👕 Ropa</button>
+                <button onclick="filtrarPromo('herramientas',this)" class="promo-pill px-5 py-2 rounded-full text-sm font-semibold bg-white text-gray-600 border border-gray-200 hover:border-brand-400 transition-all">🔧 Herramientas</button>
+                <button onclick="filtrarPromo('abarrotes',this)" class="promo-pill px-5 py-2 rounded-full text-sm font-semibold bg-white text-gray-600 border border-gray-200 hover:border-brand-400 transition-all">🛒 Abarrotes</button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5" id="promoGrid">
+
+                <div class="promo-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 bento-hover group" data-cat="aseo" data-aos="fade-up" data-aos-delay="50">
+                    <div class="relative h-44 overflow-hidden"><img src="../img/promociones/detergente.jpg" onerror="this.src='https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=400&q=80'" alt="Detergente" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">🔥 -20%</span></div>
+                    <div class="p-4"><div class="text-xs text-brand-600 font-semibold mb-1">Aseo del Hogar</div><div class="font-bold text-gray-800 text-sm mb-2">Detergente en Polvo 1kg</div><div class="flex items-center justify-between"><div><span class="text-xs text-gray-400 line-through">$8.500</span><span class="text-base font-extrabold text-brand-900 ml-1">$6.800</span></div><a href="../views/usuarios/login.php" class="w-8 h-8 rounded-xl bg-brand-900 text-white flex items-center justify-center hover:bg-brand-700 transition text-xs"><i class="fas fa-cart-plus"></i></a></div></div>
                 </div>
 
-                <!-- Visión -->
-                <div class="bg-white rounded-3xl p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group bento-hover" data-aos="fade-up" data-aos-delay="200">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-bl-[100px] -z-10 transition-transform group-hover:scale-110"></div>
-                    <div class="w-16 h-16 bg-white rounded-2xl shadow-md border border-gray-100 flex items-center justify-center text-accent text-2xl mb-8 transform rotate-6 group-hover:rotate-0 transition-transform">
-                        <i class="fas fa-eye"></i>
-                    </div>
-                    <h3 class="font-heading text-2xl font-bold text-gray-900 mb-4">Nuestra Visión</h3>
-                    <p class="text-gray-600 leading-relaxed">
-                        Consolidarnos como el referente en gestión automatizada en el sector comercial, permitiendo al Almacén Europa expandir sus fronteras operativas con procesos ágiles y datos precisos para un crecimiento sostenido e inteligente.
-                    </p>
+                <div class="promo-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 bento-hover group" data-cat="aseo" data-aos="fade-up" data-aos-delay="100">
+                    <div class="relative h-44 overflow-hidden"><img src="../img/promociones/jabon.jpg" onerror="this.src='https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=400&q=80'" alt="Jabón" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><span class="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">✅ NUEVO</span></div>
+                    <div class="p-4"><div class="text-xs text-brand-600 font-semibold mb-1">Aseo Personal</div><div class="font-bold text-gray-800 text-sm mb-2">Jabón de Baño x3 und</div><div class="flex items-center justify-between"><span class="text-base font-extrabold text-brand-900">$4.200</span><a href="../views/usuarios/login.php" class="w-8 h-8 rounded-xl bg-brand-900 text-white flex items-center justify-center hover:bg-brand-700 transition text-xs"><i class="fas fa-cart-plus"></i></a></div></div>
                 </div>
+
+                <div class="promo-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 bento-hover group" data-cat="aseo" data-aos="fade-up" data-aos-delay="150">
+                    <div class="relative h-44 overflow-hidden"><img src="../img/promociones/escoba.jpg" onerror="this.src='https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=400&q=80'" alt="Escoba" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><span class="absolute top-2 left-2 bg-yellow-400 text-gray-900 text-xs font-bold px-2.5 py-1 rounded-full">⭐ OFERTA</span></div>
+                    <div class="p-4"><div class="text-xs text-brand-600 font-semibold mb-1">Aseo del Hogar</div><div class="font-bold text-gray-800 text-sm mb-2">Escoba + Recogedor</div><div class="flex items-center justify-between"><div><span class="text-xs text-gray-400 line-through">$18.000</span><span class="text-base font-extrabold text-brand-900 ml-1">$14.500</span></div><a href="../views/usuarios/login.php" class="w-8 h-8 rounded-xl bg-brand-900 text-white flex items-center justify-center hover:bg-brand-700 transition text-xs"><i class="fas fa-cart-plus"></i></a></div></div>
+                </div>
+
+                <div class="promo-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 bento-hover group" data-cat="ropa" data-aos="fade-up" data-aos-delay="200">
+                    <div class="relative h-44 overflow-hidden"><img src="../img/promociones/camiseta.jpg" onerror="this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=400&q=80'" alt="Camiseta" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">🔥 -30%</span></div>
+                    <div class="p-4"><div class="text-xs text-brand-600 font-semibold mb-1">Ropa</div><div class="font-bold text-gray-800 text-sm mb-2">Camiseta Algodón Unisex</div><div class="flex items-center justify-between"><div><span class="text-xs text-gray-400 line-through">$25.000</span><span class="text-base font-extrabold text-brand-900 ml-1">$17.500</span></div><a href="../views/usuarios/login.php" class="w-8 h-8 rounded-xl bg-brand-900 text-white flex items-center justify-center hover:bg-brand-700 transition text-xs"><i class="fas fa-cart-plus"></i></a></div></div>
+                </div>
+
+                <div class="promo-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 bento-hover group" data-cat="ropa" data-aos="fade-up" data-aos-delay="250">
+                    <div class="relative h-44 overflow-hidden"><img src="../img/promociones/pantalon.jpg" onerror="this.src='https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=400&q=80'" alt="Pantalón" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><span class="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">✅ NUEVO</span></div>
+                    <div class="p-4"><div class="text-xs text-brand-600 font-semibold mb-1">Ropa</div><div class="font-bold text-gray-800 text-sm mb-2">Pantalón Jean Clásico</div><div class="flex items-center justify-between"><span class="text-base font-extrabold text-brand-900">$45.000</span><a href="../views/usuarios/login.php" class="w-8 h-8 rounded-xl bg-brand-900 text-white flex items-center justify-center hover:bg-brand-700 transition text-xs"><i class="fas fa-cart-plus"></i></a></div></div>
+                </div>
+
+                <div class="promo-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 bento-hover group" data-cat="ropa" data-aos="fade-up" data-aos-delay="300">
+                    <div class="relative h-44 overflow-hidden"><img src="../img/promociones/medias.jpg" onerror="this.src='https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?auto=format&fit=crop&w=400&q=80'" alt="Medias" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><span class="absolute top-2 left-2 bg-yellow-400 text-gray-900 text-xs font-bold px-2.5 py-1 rounded-full">⭐ 3x2</span></div>
+                    <div class="p-4"><div class="text-xs text-brand-600 font-semibold mb-1">Ropa</div><div class="font-bold text-gray-800 text-sm mb-2">Medias Deportivas x6</div><div class="flex items-center justify-between"><span class="text-base font-extrabold text-brand-900">$12.000</span><a href="../views/usuarios/login.php" class="w-8 h-8 rounded-xl bg-brand-900 text-white flex items-center justify-center hover:bg-brand-700 transition text-xs"><i class="fas fa-cart-plus"></i></a></div></div>
+                </div>
+
+                <div class="promo-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 bento-hover group" data-cat="herramientas" data-aos="fade-up" data-aos-delay="350">
+                    <div class="relative h-44 overflow-hidden"><img src="../img/promociones/martillo.jpg" onerror="this.src='https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=400&q=80'" alt="Martillo" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">🔥 -15%</span></div>
+                    <div class="p-4"><div class="text-xs text-brand-600 font-semibold mb-1">Herramientas</div><div class="font-bold text-gray-800 text-sm mb-2">Martillo de Carpintero</div><div class="flex items-center justify-between"><div><span class="text-xs text-gray-400 line-through">$22.000</span><span class="text-base font-extrabold text-brand-900 ml-1">$18.700</span></div><a href="../views/usuarios/login.php" class="w-8 h-8 rounded-xl bg-brand-900 text-white flex items-center justify-center hover:bg-brand-700 transition text-xs"><i class="fas fa-cart-plus"></i></a></div></div>
+                </div>
+
+                <div class="promo-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 bento-hover group" data-cat="herramientas" data-aos="fade-up" data-aos-delay="400">
+                    <div class="relative h-44 overflow-hidden"><img src="../img/promociones/destornilladores.jpg" onerror="this.src='https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=400&q=80'" alt="Destornilladores" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><span class="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">✅ KIT</span></div>
+                    <div class="p-4"><div class="text-xs text-brand-600 font-semibold mb-1">Herramientas</div><div class="font-bold text-gray-800 text-sm mb-2">Kit Destornilladores x8</div><div class="flex items-center justify-between"><span class="text-base font-extrabold text-brand-900">$35.000</span><a href="../views/usuarios/login.php" class="w-8 h-8 rounded-xl bg-brand-900 text-white flex items-center justify-center hover:bg-brand-700 transition text-xs"><i class="fas fa-cart-plus"></i></a></div></div>
+                </div>
+
+                <div class="promo-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 bento-hover group" data-cat="herramientas" data-aos="fade-up" data-aos-delay="450">
+                    <div class="relative h-44 overflow-hidden"><img src="../img/promociones/cinta.jpg" onerror="this.src='https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=400&q=80'" alt="Cinta métrica" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><span class="absolute top-2 left-2 bg-yellow-400 text-gray-900 text-xs font-bold px-2.5 py-1 rounded-full">⭐ OFERTA</span></div>
+                    <div class="p-4"><div class="text-xs text-brand-600 font-semibold mb-1">Herramientas</div><div class="font-bold text-gray-800 text-sm mb-2">Cinta Métrica 5m</div><div class="flex items-center justify-between"><div><span class="text-xs text-gray-400 line-through">$12.000</span><span class="text-base font-extrabold text-brand-900 ml-1">$9.500</span></div><a href="../views/usuarios/login.php" class="w-8 h-8 rounded-xl bg-brand-900 text-white flex items-center justify-center hover:bg-brand-700 transition text-xs"><i class="fas fa-cart-plus"></i></a></div></div>
+                </div>
+
+                <div class="promo-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 bento-hover group" data-cat="abarrotes" data-aos="fade-up" data-aos-delay="500">
+                    <div class="relative h-44 overflow-hidden"><img src="./img/luxury.jpg" alt="Arroz" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">🔥 -10%</span></div>
+                    <div class="p-4"><div class="text-xs text-brand-600 font-semibold mb-1">locion luxury </div><div class="font-bold text-gray-800 text-sm mb-2">locion luxury</div><div class="flex items-center justify-between"><div><span class="text-xs text-gray-400 line-through">$18.000</span><span class="text-base font-extrabold text-brand-900 ml-1">$16.200</span></div><a href="../views/usuarios/login.php" class="w-8 h-8 rounded-xl bg-brand-900 text-white flex items-center justify-center hover:bg-brand-700 transition text-xs"><i class="fas fa-cart-plus"></i></a></div></div>
+                </div>
+
+                <div class="promo-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 bento-hover group" data-cat="abarrotes" data-aos="fade-up" data-aos-delay="550">
+                    <div class="relative h-44 overflow-hidden"><img src="../img/promociones/aceite.jpg" onerror="this.src='https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=400&q=80'" alt="Aceite" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><span class="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">✅ NUEVO</span></div>
+                    <div class="p-4"><div class="text-xs text-brand-600 font-semibold mb-1">Abarrotes</div><div class="font-bold text-gray-800 text-sm mb-2">Aceite Vegetal 1 Litro</div><div class="flex items-center justify-between"><span class="text-base font-extrabold text-brand-900">$9.800</span><a href="../views/usuarios/login.php" class="w-8 h-8 rounded-xl bg-brand-900 text-white flex items-center justify-center hover:bg-brand-700 transition text-xs"><i class="fas fa-cart-plus"></i></a></div></div>
+                </div>
+
+                <div class="promo-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 bento-hover group" data-cat="abarrotes" data-aos="fade-up" data-aos-delay="600">
+                    <div class="relative h-44 overflow-hidden"><img src="../img/promociones/azucar.jpg" onerror="this.src='https://images.unsplash.com/photo-1559181567-c3190ca9be46?auto=format&fit=crop&w=400&q=80'" alt="Azúcar" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><span class="absolute top-2 left-2 bg-yellow-400 text-gray-900 text-xs font-bold px-2.5 py-1 rounded-full">⭐ COMBO</span></div>
+                    <div class="p-4"><div class="text-xs text-brand-600 font-semibold mb-1">Abarrotes</div><div class="font-bold text-gray-800 text-sm mb-2">Azúcar Blanca 2kg</div><div class="flex items-center justify-between"><div><span class="text-xs text-gray-400 line-through">$7.500</span><span class="text-base font-extrabold text-brand-900 ml-1">$6.500</span></div><a href="../views/usuarios/login.php" class="w-8 h-8 rounded-xl bg-brand-900 text-white flex items-center justify-center hover:bg-brand-700 transition text-xs"><i class="fas fa-cart-plus"></i></a></div></div>
+                </div>
+
             </div>
+
+            <div class="text-center mt-12" data-aos="fade-up">
+                <a href="../views/usuarios/login.php" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-brand-900 text-white font-semibold hover:bg-brand-800 transition shadow-xl">
+                    <i class="fas fa-tags"></i> Ver todas las promociones
+                </a>
+            </div>
+
+            <style>
+                .promo-pill { transition: all .2s; }
+                .active-pill { background:#1e3a8a !important; color:#fff !important; border-color:#1e3a8a !important; }
+            </style>
+            <script>
+                function filtrarPromo(cat, el) {
+                    document.querySelectorAll('.promo-pill').forEach(p => p.classList.remove('active-pill'));
+                    el.classList.add('active-pill');
+                    document.querySelectorAll('.promo-card').forEach(card => {
+                        card.style.display = (cat === 'todos' || card.dataset.cat === cat) ? '' : 'none';
+                    });
+                }
+            </script>
         </div>
     </section>
 
-    <!-- Funcionalidades (Bento Grid) -->
-    <section id="funcionalidades" class="py-24 bg-white">
+    <!-- SECCIÓN CARRITO -->
+    <section id="carrito" class="py-24 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-16" data-aos="fade-in">
-                <div class="max-w-2xl">
-                    <span class="text-brand-600 font-semibold tracking-wider uppercase text-sm">Capacidades</span>
-                    <h2 class="font-heading text-3xl md:text-5xl font-bold text-gray-900 mt-2">Todo lo que necesita en un solo lugar</h2>
-                </div>
-                <div class="mt-6 md:mt-0">
-                    <a href="../views/usuarios/login.php" class="inline-flex items-center gap-2 text-brand-600 font-medium hover:text-brand-800 transition-colors">
-                        Acceder al Panel <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
+            <div class="text-center max-w-3xl mx-auto mb-16" data-aos="fade-up">
+                <span class="text-brand-600 font-semibold tracking-wider uppercase text-sm">Compra Fácil</span>
+                <h2 class="font-heading text-3xl md:text-5xl font-bold text-gray-900 mt-2 mb-4">Tu Carrito de Compras</h2>
+                <p class="text-gray-600 text-lg">Agrega productos, revisa tu pedido y confirma tu compra en segundos. Así de simple.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                <!-- Card 1 (Large) -->
-                <div class="md:col-span-2 bg-slate-50 rounded-3xl p-8 border border-gray-100 bento-hover flex flex-col justify-between overflow-hidden relative" data-aos="fade-up" data-aos-delay="100">
-                    <div class="relative z-10 max-w-md">
-                        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-800 shadow-sm mb-6">
-                            <i class="fas fa-boxes-stacked"></i>
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <!-- Pasos -->
+                <div class="space-y-8" data-aos="fade-right">
+                    <div class="flex items-start gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-brand-900 text-white flex items-center justify-center text-xl font-bold flex-shrink-0 shadow-lg shadow-brand-900/30">1</div>
+                        <div>
+                            <h3 class="font-heading text-xl font-bold text-gray-900 mb-1">Explora el Catálogo</h3>
+                            <p class="text-gray-500">Navega por todas las categorías y encuentra los productos que necesitas con fotos, precios y disponibilidad en tiempo real.</p>
                         </div>
-                        <h3 class="font-heading text-2xl font-bold text-gray-900 mb-3">Gestión de Inventario en Tiempo Real</h3>
-                        <p class="text-gray-600 mb-6">Controle el stock al detalle. Reciba alertas de stock mínimo, gestione múltiples categorías y evite la pérdida de ventas por falta de productos.</p>
                     </div>
-                    <div class="absolute -bottom-10 -right-10 w-2/3 opacity-50 md:opacity-100 transition-transform hover:scale-105">
-                        <img src="https://images.unsplash.com/photo-1586528116311-ad8ed79a2779?auto=format&fit=crop&w=600&q=80" alt="Boxes" class="rounded-tl-2xl shadow-2xl border-t border-l border-white/50">
-                    </div>
-                </div>
-
-                <!-- Card 2 -->
-                <div class="bg-brand-900 rounded-3xl p-8 text-white bento-hover relative overflow-hidden" data-aos="fade-up" data-aos-delay="200">
-                    <div class="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-brand-600/20 to-transparent"></div>
-                    <div class="relative z-10">
-                        <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-brand-100 mb-6 backdrop-blur-sm">
-                            <i class="fas fa-cash-register"></i>
+                    <div class="flex items-start gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-accent text-white flex items-center justify-center text-xl font-bold flex-shrink-0 shadow-lg shadow-accent/30">2</div>
+                        <div>
+                            <h3 class="font-heading text-xl font-bold text-gray-900 mb-1">Agrega al Carrito</h3>
+                            <p class="text-gray-500">Con un solo clic agrega productos a tu carrito. Ajusta cantidades, elimina items y ve el total actualizado en tiempo real.</p>
                         </div>
-                        <h3 class="font-heading text-xl font-bold mb-3">Punto de Venta (POS)</h3>
-                        <p class="text-brand-100 text-sm">Interfaz ultrarrápida diseñada para procesar pagos y generar facturas sin demoras.</p>
                     </div>
+                    <div class="flex items-start gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-green-600 text-white flex items-center justify-center text-xl font-bold flex-shrink-0 shadow-lg shadow-green-600/30">3</div>
+                        <div>
+                            <h3 class="font-heading text-xl font-bold text-gray-900 mb-1">Confirma y Recibe tu Factura</h3>
+                            <p class="text-gray-500">Confirma tu pedido y recibe al instante tu factura POS digital lista para imprimir. Historial completo de todas tus compras.</p>
+                        </div>
+                    </div>
+
+                    <a href="../views/usuarios/login.php"
+                       class="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-brand-900 text-white font-semibold hover:bg-brand-800 transition shadow-xl shadow-brand-900/20 mt-4">
+                        <i class="fas fa-shopping-cart"></i> Ir a la Tienda
+                        <i class="fas fa-arrow-right text-sm"></i>
+                    </a>
                 </div>
 
-                <!-- Card 3 -->
-                <div class="bg-accent/10 rounded-3xl p-8 border border-accent/20 bento-hover" data-aos="fade-up" data-aos-delay="300">
-                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-accent shadow-sm mb-6">
-                        <i class="fas fa-users-gear"></i>
-                    </div>
-                    <h3 class="font-heading text-xl font-bold text-gray-900 mb-3">Roles y Accesos</h3>
-                    <p class="text-gray-600 text-sm">Administradores, Vendedores y Bodegueros. Cada quien con los permisos exactos que necesita.</p>
-                </div>
-
-                <!-- Card 4 (Large) -->
-                <div class="md:col-span-2 bg-slate-900 rounded-3xl p-8 border border-gray-800 text-white bento-hover relative overflow-hidden" data-aos="fade-up" data-aos-delay="400">
-                    <!-- Decoración fondo -->
-                    <div class="absolute -right-20 -top-20 w-64 h-64 bg-accent blur-[100px] opacity-20 rounded-full"></div>
-                    
-                    <div class="relative z-10 flex flex-col md:flex-row gap-8 items-center h-full">
-                        <div class="flex-1">
-                            <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white mb-6 backdrop-blur-sm">
-                                <i class="fas fa-chart-pie"></i>
+                <!-- Mockup carrito -->
+                <div class="relative" data-aos="fade-left" data-aos-delay="200">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-brand-100 to-accent/20 rounded-3xl blur-3xl opacity-60"></div>
+                    <div class="relative bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+                        <!-- Header mockup -->
+                        <div class="bg-brand-950 px-6 py-4 flex items-center justify-between">
+                            <span class="text-white font-bold flex items-center gap-2">
+                                <i class="fas fa-shopping-cart"></i> Mi Carrito
+                            </span>
+                            <span class="w-6 h-6 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center">3</span>
+                        </div>
+                        <!-- Items mockup -->
+                        <div class="p-5 space-y-3">
+                            <?php
+                            $mockItems = [
+                                ['nombre'=>'Arroz Diana 500g',    'precio'=>'$3.500', 'qty'=>2, 'color'=>'bg-blue-100 text-blue-600'],
+                                ['nombre'=>'Jabón Rey x3',        'precio'=>'$8.200', 'qty'=>1, 'color'=>'bg-green-100 text-green-600'],
+                                ['nombre'=>'Aceite Girasol 1L',   'precio'=>'$12.000','qty'=>1, 'color'=>'bg-amber-100 text-amber-600'],
+                            ];
+                            foreach ($mockItems as $item): ?>
+                            <div class="flex items-center gap-3 bg-gray-50 rounded-xl p-3 border border-gray-100">
+                                <div class="w-10 h-10 rounded-xl <?= $item['color'] ?> flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-box text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-semibold text-gray-800 text-sm"><?= $item['nombre'] ?></div>
+                                    <div class="text-brand-700 font-bold text-xs"><?= $item['precio'] ?></div>
+                                </div>
+                                <div class="flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-2 py-1">
+                                    <span class="text-xs text-gray-500">×</span>
+                                    <span class="text-sm font-bold text-gray-800"><?= $item['qty'] ?></span>
+                                </div>
                             </div>
-                            <h3 class="font-heading text-2xl font-bold mb-3">Reportes Analíticos</h3>
-                            <p class="text-gray-400 mb-0">Tome decisiones informadas. Visualice el rendimiento de sus ventas, analice los productos estrella y supervise el flujo de caja diario en dashboards interactivos.</p>
+                            <?php endforeach; ?>
                         </div>
-                        <div class="flex-1 w-full flex justify-center">
-                            <!-- Mini gráfico visual -->
-                            <div class="flex items-end gap-3 h-32 w-full max-w-[200px]">
-                                <div class="w-1/4 bg-brand-600 rounded-t-md h-[40%] hover:h-[50%] transition-all"></div>
-                                <div class="w-1/4 bg-accent rounded-t-md h-[70%] hover:h-[80%] transition-all"></div>
-                                <div class="w-1/4 bg-brand-400 rounded-t-md h-[50%] hover:h-[60%] transition-all"></div>
-                                <div class="w-1/4 bg-white rounded-t-md h-[90%] hover:h-[100%] transition-all"></div>
+                        <!-- Total mockup -->
+                        <div class="px-5 pb-5">
+                            <div class="bg-brand-50 rounded-xl p-4 flex items-center justify-between border border-brand-100">
+                                <span class="font-bold text-brand-900">Total</span>
+                                <span class="text-2xl font-extrabold text-brand-900">$27.200</span>
+                            </div>
+                            <div class="mt-3 w-full py-3 rounded-xl bg-brand-900 text-white font-bold text-center text-sm">
+                                <i class="fas fa-check-circle mr-2"></i> Confirmar Pedido
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </section>

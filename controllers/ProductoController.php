@@ -54,8 +54,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $nombreArchivo = 'prod_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
                 if (move_uploaded_file($_FILES['imagen']['tmp_name'], $uploadDir . $nombreArchivo)) {
                     $imagen = $nombreArchivo;
+                } else {
+                    $_SESSION['alert'] = ['icon'=>'error','title'=>'Error de almacenamiento','text'=>'No se pudo guardar la imagen en el servidor. Verifique los permisos de la carpeta img/productos/'];
+                    header("Location: ../views/productos/index.php"); exit;
                 }
+            } else {
+                $_SESSION['alert'] = ['icon'=>'warning','title'=>'Formato inválido','text'=>'El formato de la imagen no es permitido. Use JPG, JPEG, PNG, WEBP o GIF.'];
+                header("Location: ../views/productos/index.php"); exit;
             }
+        } elseif (isset($_FILES['imagen']) && $_FILES['imagen']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $_SESSION['alert'] = ['icon'=>'error','title'=>'Error de subida','text'=>'Hubo un error al subir la imagen. Código de error: ' . $_FILES['imagen']['error']];
+            header("Location: ../views/productos/index.php"); exit;
         }
 
         if ($productoModel->crearConStock($nombre, $descripcion, $precio_compra, $precio_venta, $categoria_id, $codigo_barras, $imagen, $stock_minimo)) {
@@ -98,8 +107,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ($imgAnterior && file_exists($uploadDir . $imgAnterior)) {
                         unlink($uploadDir . $imgAnterior);
                     }
+                } else {
+                    $_SESSION['alert'] = ['icon'=>'error','title'=>'Error de almacenamiento','text'=>'No se pudo guardar la imagen en el servidor. Verifique los permisos de la carpeta img/productos/'];
+                    header("Location: ../views/productos/index.php"); exit;
                 }
+            } else {
+                $_SESSION['alert'] = ['icon'=>'warning','title'=>'Formato inválido','text'=>'El formato de la imagen no es permitido. Use JPG, JPEG, PNG, WEBP o GIF.'];
+                header("Location: ../views/productos/index.php"); exit;
             }
+        } elseif (isset($_FILES['imagen']) && $_FILES['imagen']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $_SESSION['alert'] = ['icon'=>'error','title'=>'Error de subida','text'=>'Hubo un error al subir la imagen. Código de error: ' . $_FILES['imagen']['error']];
+            header("Location: ../views/productos/index.php"); exit;
         }
 
         if ($productoModel->editarConStock($id, $nombre, $descripcion, $precio_compra, $precio_venta, $categoria_id, $codigo_barras, $imagen, $stock_minimo)) {

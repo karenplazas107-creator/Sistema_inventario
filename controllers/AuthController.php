@@ -65,7 +65,7 @@ class AuthController {
 
         // Guardar datos en sesión
         $_SESSION['usuario'] = [
-            'id_usuario' => $usuario['id'],
+            'id'         => $usuario['id'],
             'nombres'    => $usuario['nombres'],
             'apellidos'  => $usuario['apellidos'],
             'email'      => $usuario['email'],

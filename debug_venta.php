@@ -5,7 +5,7 @@ require_once __DIR__ . '/models/Venta.php';
 session_start();
 // Simular usuario si no hay sesión
 if (!isset($_SESSION['usuario'])) {
-    $_SESSION['usuario'] = ['id_usuario' => 1];
+    $_SESSION['usuario'] = ['id' => 1];
 }
 
 try {
@@ -13,7 +13,7 @@ try {
     $db = $database->conectar();
     $ventaModel = new Venta($db);
 
-    $usuario_id = $_SESSION['usuario']['id_usuario'];
+    $usuario_id = $_SESSION['usuario']['id'];
     $total = 100;
     $detalles = [
         ['producto_id' => 1, 'cantidad' => 1, 'precio' => 100]

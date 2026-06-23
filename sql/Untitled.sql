@@ -65,7 +65,8 @@ CREATE TABLE `ventas` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `usuario_id` int,
   `fecha` timestamp,
-  `total` decimal
+  `total` decimal,
+  `metodo_pago` varchar(50) DEFAULT 'Efectivo'
 );
 
 CREATE TABLE `detalle_venta` (

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (!isset($_SESSION['usuario'])) {
     header("Location: ../usuarios/login.php");
@@ -450,6 +450,106 @@ const opcionesBase = {
         }
     });
 })();
+</script>
+
+
+<!-- ══════════════════════════════════════════════════════
+     SECCIÓN 5 — GENERADOR DE REPORTES PDF
+══════════════════════════════════════════════════════ -->
+<p class="section-title mt-2">Exportar reporte</p>
+<div class="card p-6 mb-8 bg-white border border-gray-100 shadow-sm rounded-2xl">
+
+    <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center text-white flex-shrink-0">
+            <i class="fas fa-file-pdf text-sm"></i>
+        </div>
+        <div>
+            <div class="font-semibold text-gray-800 text-base">Generador de Reportes Especiales</div>
+            <div class="text-xs text-gray-400 mt-0.5">Selecciona el tipo de reporte y ábrelo para descargar como PDF</div>
+        </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-4 items-end">
+
+        <div class="flex-1">
+            <label class="block text-xs font-semibold text-gray-600 mb-1.5">Filtrar por:</label>
+            <select id="tipoReporte"
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white transition">
+                <option value="inventario">Todo el Inventario</option>
+                <option value="ventas_mes">Ventas por Mes</option>
+                <option value="top_productos">Productos Más Vendidos</option>
+                <option value="vendedores">Rendimiento por Vendedor</option>
+                <option value="stock_bajo">Productos con Stock Bajo / Agotado</option>
+                <option value="resumen">Resumen General</option>
+            </select>
+        </div>
+
+        <div class="flex-1">
+            <label class="block text-xs font-semibold text-gray-600 mb-1.5">Formato:</label>
+            <select id="formatoReporte"
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white transition">
+                <option value="ver">Ver en Pantalla (Imprimible)</option>
+                <option value="print">Abrir y Descargar Directo</option>
+            </select>
+        </div>
+
+        <button onclick="abrirReporte()"
+                class="flex items-center gap-2.5 px-7 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-semibold rounded-xl shadow-md transition-all hover:scale-[1.02] flex-shrink-0 h-[42px]">
+            <i class="fas fa-play text-xs"></i>
+            Generar Reporte
+        </button>
+
+    </div>
+
+    <!-- Mini-preview de tipos -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-6 pt-5 border-t border-gray-100">
+        <?php
+        $tiposInfo = [
+            ['key'=>'inventario',    'icon'=>'fa-boxes-stacked',  'label'=>'Inventario',    'color'=>'blue'],
+            ['key'=>'ventas_mes',    'icon'=>'fa-chart-line',     'label'=>'Ventas/Mes',    'color'=>'indigo'],
+            ['key'=>'top_productos', 'icon'=>'fa-trophy',         'label'=>'Top Productos', 'color'=>'amber'],
+            ['key'=>'vendedores',    'icon'=>'fa-users',          'label'=>'Vendedores',    'color'=>'green'],
+            ['key'=>'stock_bajo',    'icon'=>'fa-triangle-exclamation', 'label'=>'Stock Bajo', 'color'=>'red'],
+            ['key'=>'resumen',       'icon'=>'fa-chart-pie',      'label'=>'Resumen',       'color'=>'purple'],
+        ];
+        $colorMap = [
+            'blue'   => 'bg-blue-50 text-blue-700 border-blue-100',
+            'indigo' => 'bg-indigo-50 text-indigo-700 border-indigo-100',
+            'amber'  => 'bg-amber-50 text-amber-700 border-amber-100',
+            'green'  => 'bg-green-50 text-green-700 border-green-100',
+            'red'    => 'bg-red-50 text-red-700 border-red-100',
+            'purple' => 'bg-purple-50 text-purple-700 border-purple-100',
+        ];
+        foreach ($tiposInfo as $t):
+            $cls = $colorMap[$t['color']];
+        ?>
+        <button onclick="seleccionarTipo('<?= $t['key'] ?>')"
+                id="chip-<?= $t['key'] ?>"
+                class="tipo-chip flex flex-col items-center gap-1.5 p-3 rounded-xl border text-center transition-all hover:scale-105 <?= $cls ?>">
+            <i class="fas <?= $t['icon'] ?> text-lg"></i>
+            <span class="text-xs font-semibold"><?= $t['label'] ?></span>
+        </button>
+        <?php endforeach; ?>
+    </div>
+
+</div>
+
+<script>
+function seleccionarTipo(key) {
+    document.getElementById('tipoReporte').value = key;
+    // Resaltar chip activo
+    document.querySelectorAll('.tipo-chip').forEach(c => c.style.boxShadow = '');
+    const chip = document.getElementById('chip-' + key);
+    if (chip) chip.style.boxShadow = '0 0 0 3px rgba(37,99,235,.35)';
+}
+
+function abrirReporte() {
+    const tipo    = document.getElementById('tipoReporte').value;
+    const formato = document.getElementById('formatoReporte').value;
+    const print   = formato === 'print' ? '&print=1' : '';
+    const url     = 'descargar_pdf.php?tipo=' + tipo + print;
+    window.open(url, '_blank');
+}
 </script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

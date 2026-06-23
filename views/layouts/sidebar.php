@@ -63,7 +63,7 @@ $rolDisplay = htmlspecialchars(ucfirst($rol));
              MENÚ COMPRADOR — vista reducida
         ══════════════════════════════════════ -->
 
-        <a href="../dashboard/index.php"
+        <a href="../dashboard/comprador.php"
            class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg">
             <i class="fas fa-home w-4 text-center"></i>
             <span>Inicio</span>
@@ -71,7 +71,7 @@ $rolDisplay = htmlspecialchars(ucfirst($rol));
 
         <div class="nav-section-label">Tienda</div>
 
-        <a href="../Catalogo/index.php"
+        <a href="../Catalogo/catalogo.php"
            class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg">
             <i class="fas fa-tags w-4 text-center"></i>
             <span>Catálogo</span>

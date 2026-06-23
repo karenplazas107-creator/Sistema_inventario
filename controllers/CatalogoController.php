@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ext = strtolower(pathinfo($_FILES['imagen']['name'], PATHINFO_EXTENSION));
             $permitidos = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
             if (!in_array($ext, $permitidos)) {
-                $_SESSION['alert'] = ['icon' => 'warning', 'title' => 'Formato inválido', 'text' => 'Solo se permiten imágenes JPG, PNG, WEBP o GIF.'];
+                $_SESSION['alert'] = ['icon' => 'warning', 'title' => 'Formato inválido', 'text' => 'Solo se permiten imágenes JPG, JPEG, PNG, WEBP o GIF.'];
                 header("Location: ../views/Catalogo/index.php");
                 exit;
             }
@@ -58,7 +58,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nombreArchivo = 'prod_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
             if (move_uploaded_file($_FILES['imagen']['tmp_name'], $uploadDir . $nombreArchivo)) {
                 $imagen = $nombreArchivo;
+            } else {
+                $_SESSION['alert'] = ['icon' => 'error', 'title' => 'Error de almacenamiento', 'text' => 'No se pudo guardar la imagen en el servidor. Verifique los permisos de la carpeta img/productos/'];
+                header("Location: ../views/Catalogo/index.php");
+                exit;
             }
+        } elseif (isset($_FILES['imagen']) && $_FILES['imagen']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $_SESSION['alert'] = ['icon' => 'error', 'title' => 'Error de subida', 'text' => 'Hubo un error al subir la imagen. Código de error: ' . $_FILES['imagen']['error']];
+            header("Location: ../views/Catalogo/index.php");
+            exit;
         }
 
         if ($productoModel->crear($nombre, $descripcion, $precio_compra, $precio_venta, $categoria_id, $codigo_barras, $imagen)) {
@@ -102,8 +110,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ($imagenAnterior && file_exists($uploadDir . $imagenAnterior)) {
                         unlink($uploadDir . $imagenAnterior);
                     }
+                } else {
+                    $_SESSION['alert'] = ['icon' => 'error', 'title' => 'Error de almacenamiento', 'text' => 'No se pudo guardar la imagen en el servidor. Verifique los permisos de la carpeta img/productos/'];
+                    header("Location: ../views/Catalogo/index.php");
+                    exit;
                 }
+            } else {
+                $_SESSION['alert'] = ['icon' => 'warning', 'title' => 'Formato inválido', 'text' => 'El formato de la imagen no es permitido. Use JPG, JPEG, PNG, WEBP o GIF.'];
+                header("Location: ../views/Catalogo/index.php");
+                exit;
             }
+        } elseif (isset($_FILES['imagen']) && $_FILES['imagen']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $_SESSION['alert'] = ['icon' => 'error', 'title' => 'Error de subida', 'text' => 'Hubo un error al subir la imagen. Código de error: ' . $_FILES['imagen']['error']];
+            header("Location: ../views/Catalogo/index.php");
+            exit;
         }
 
         if ($productoModel->editar($id, $nombre, $descripcion, $precio_compra, $precio_venta, $categoria_id, $codigo_barras, $imagen)) {

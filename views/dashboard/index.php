@@ -6,6 +6,12 @@ if (!isset($_SESSION['usuario'])) {
     exit;
 }
 
+// Redirigir al Comprador a su propia vista
+if ($_SESSION['usuario']['rol'] === 'Comprador') {
+    header("Location: ../dashboard/comprador.php");
+    exit;
+}
+
 $titulo = "Inicio - Panel de Control";
 require_once __DIR__ . '/../layouts/header.php';
 require_once __DIR__ . '/../layouts/sidebar.php';

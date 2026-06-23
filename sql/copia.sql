@@ -262,6 +262,7 @@ CREATE TABLE `ventas` (
   `usuario_id` int DEFAULT NULL,
   `fecha` timestamp NULL DEFAULT NULL,
   `total` decimal(10,0) DEFAULT NULL,
+  `metodo_pago` varchar(50) DEFAULT 'Efectivo',
   PRIMARY KEY (`id`),
   KEY `usuario_id` (`usuario_id`),
   CONSTRAINT `ventas_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`)

@@ -24,7 +24,7 @@ class Producto {
                AND COLUMN_NAME IN ('codigo_barras','imagen')"
         );
         $stmt->execute([':tabla' => $this->table_name]);
-        $found = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $found = array_map('strtolower', $stmt->fetchAll(PDO::FETCH_COLUMN));
 
         $this->colsCache = [
             'codigo_barras' => in_array('codigo_barras', $found),
